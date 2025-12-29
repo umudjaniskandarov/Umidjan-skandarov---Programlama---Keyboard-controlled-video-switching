@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="style.css">
+  <title>Video Klavye Kontrolü</title>
+  
+</head>
+<body>
+
+<div class="video-wrap">
+  <video id="currentVideo" controls preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <div id="hint">A = Video 1 | B = Video 2</div>
+</div>
+
+<script>
+  const currentVideo = document.getElementById('currentVideo');
+  const videos = ["video1.mp4", "video2.mp4"];
+  let index = 0;
+
+  function switchVideo(newIndex){
+    if(newIndex === index) return; 
+   
+    const lastTime = currentVideo.currentTime;
+    const wasPaused = currentVideo.paused;
+
+    index = newIndex;
+    currentVideo.src = videos[index];
+
+
+    currentVideo.addEventListener('loadedmetadata', function onLoad(){
+      currentVideo.removeEventListener('loadedmetadata', onLoad);
+
+      currentVideo.currentTime = Math.min(
+        lastTime,
+        currentVideo.duration || lastTime
+      );
+
+      if(!wasPaused){
+        currentVideo.play().catch(()=>{});
+      }
+    });
+  }
+
+
+  document.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if(key === 'a') switchVideo(0);
+    if(key === 'b') switchVideo(1);
+  });
+
+
+  currentVideo.addEventListener('ended', () => {
+    index = (index + 1) % videos.length;
+    currentVideo.src = videos[index];
+    currentVideo.play().catch(()=>{});
+  });
+</script>
+
+
+</body>
+</html>
