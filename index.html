@@ -1,65 +1,79 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="style.css">
-  <title>Video Klavye Kontrolü</title>
-  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dual Sync Video Switch</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="video-wrap">
-  <video id="currentVideo" controls preload="auto">
-    <source src="video1.mp4" type="video/mp4">
-  </video>
+<button id="startBtn">▶ Başlat</button>
 
-  <div id="hint">A = Video 1 | B = Video 2</div>
+<div id="wrap">
+  <video id="videoA" src="video1.mp4"></video>
+  <video id="videoB" src="video2.mp4"></video>
+</div>
+
+
+<div id="infoBox">
+  <div id="statusText">Kamera A Aktif</div>
+  <div id="keyText">Geçiş: A / B</div>
 </div>
 
 <script>
-  const currentVideo = document.getElementById('currentVideo');
-  const videos = ["video1.mp4", "video2.mp4"];
-  let index = 0;
+const A = document.getElementById("videoA");
+const B = document.getElementById("videoB");
+const statusText = document.getElementById("statusText");
+const startBtn = document.getElementById("startBtn");
 
-  function switchVideo(newIndex){
-    if(newIndex === index) return; 
-   
-    const lastTime = currentVideo.currentTime;
-    const wasPaused = currentVideo.paused;
+let running = false;
+let active = "A";
 
-    index = newIndex;
-    currentVideo.src = videos[index];
-
-
-    currentVideo.addEventListener('loadedmetadata', function onLoad(){
-      currentVideo.removeEventListener('loadedmetadata', onLoad);
-
-      currentVideo.currentTime = Math.min(
-        lastTime,
-        currentVideo.duration || lastTime
-      );
-
-      if(!wasPaused){
-        currentVideo.play().catch(()=>{});
-      }
-    });
+async function startPlayback(){
+  try{
+    await Promise.all([A.play(), B.play()]);
+    A.muted = false;
+    B.muted = true;
+    running = true;
+    startBtn.style.display = "none";
+  }catch(err){
+    alert("Video başlatılamadı. Dosya yolunu ve tarayıcı izinlerini kontrol et.");
+    console.error(err);
   }
+}
 
+startBtn.addEventListener("click", startPlayback);
 
-  document.addEventListener('keydown', (e) => {
-    const key = e.key.toLowerCase();
-    if(key === 'a') switchVideo(0);
-    if(key === 'b') switchVideo(1);
-  });
+function setActive(cam){
+  active = cam;
 
+  
+  B.currentTime = A.currentTime;
 
-  currentVideo.addEventListener('ended', () => {
-    index = (index + 1) % videos.length;
-    currentVideo.src = videos[index];
-    currentVideo.play().catch(()=>{});
-  });
+  if(cam === "A"){
+    A.style.opacity = 1;
+    B.style.opacity = 0;
+    A.muted = false;
+    B.muted = true;
+    statusText.textContent = "Kamera A Aktif";
+  }else{
+    A.style.opacity = 0;
+    B.style.opacity = 1;
+    A.muted = true;
+    B.muted = false;
+    statusText.textContent = "Kamera B Aktif";
+  }
+}
+
+document.addEventListener("keydown",(e)=>{
+  if(!running) return;
+
+  const key = e.key.toLowerCase();
+  if(key === "a" && active !== "A") setActive("A");
+  if(key === "b" && active !== "B") setActive("B");
+});
 </script>
-
 
 </body>
 </html>
