@@ -8,4 +8,5 @@ https://drive.google.com/drive/folders/1TR4cDYLxqZNesL0OZIBu3j7ujll9OI_U?usp=sha
 
 Demo - Önizleme
 https://youtu.be/yaUfqfsCAjU
-https://youtube.com/shorts/UMuVnipgysI?feature=share demo
+https://youtube.com/shorts/UMuVnipgysI demo
+https://youtu.be/yaUfqfsCAjU ön izleme
